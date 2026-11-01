@@ -1,0 +1,27 @@
+/* ============================================
+   设计系统 Tokens — 黑白双色（复刻 Element 模板）
+   ============================================ */
+:root {
+  /* 颜色：严格双色，无彩色 */
+  --bg: #fafafa;
+  --ink: #000000;
+  --black: #000000;
+  --white: #fafafa;
+  --muted: #8a8a8a;
+  --line: rgba(128, 128, 128, 0.25);
+
+  /* 字体 */
+  --font-sans: "Space Grotesk", "Noto Sans SC", "PingFang SC",
+    "Hiragino Sans GB", "Microsoft YaHei", system-ui, -apple-system, sans-serif;
+  --font-mono: ui-monospace, "SF Mono", "Cascadia Mono", Consolas,
+    "Noto Sans SC", monospace;
+
+  /* 布局 */
+  --container: min(1400px, 92vw);
+  --header-h: 76px;
+
+  /* 动效 */
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --dur-s: 350ms;
+  --dur-m: 650ms;
+}

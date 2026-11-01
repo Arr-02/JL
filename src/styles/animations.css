@@ -1,0 +1,60 @@
+/* ============================================
+   动画与可访问性
+   ============================================ */
+
+/* 玻璃几何体漂浮（相位/时长错开） */
+@keyframes float-a {
+  to {
+    transform: translateY(-20px) rotate(4deg);
+  }
+}
+
+@keyframes float-b {
+  to {
+    transform: translateY(16px) rotate(-3deg);
+  }
+}
+
+@keyframes float-c {
+  to {
+    transform: translateY(-14px) rotate(5deg);
+  }
+}
+
+@keyframes float-d {
+  to {
+    transform: translateY(12px) rotate(-4deg);
+  }
+}
+
+/* About 黑区像素方块微漂浮（叠加在滚动穿过之上的 ±18px 往复） */
+@keyframes bob {
+  to {
+    transform: translateY(-18px);
+  }
+}
+
+/* 减少动态效果：取消 scrub 转场 / 循环漂浮 / 位移 */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+
+  .wipe {
+    display: none !important;
+  }
+
+  .shape,
+  .pixels i {
+    animation: none !important;
+    transform: none !important;
+  }
+
+  .hero-line__in {
+    transform: none !important;
+  }
+}
