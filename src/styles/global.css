@@ -1323,13 +1323,14 @@ button {
     align-items: flex-start;
   }
 
-  /* 移动端：双栏退化单列，巨字一行、邮箱行堆叠 */
+  /* 移动端：双栏退化单列，巨字一行、邮箱行堆叠；履历速览移至联系我上方 */
   .contact__grid {
     grid-template-columns: 1fr;
     gap: 28px;
   }
 
   .contact__facts {
+    order: -1;
     margin-top: 8px;
   }
 

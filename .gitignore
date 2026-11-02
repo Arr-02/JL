@@ -1,6 +1,9 @@
 # Dependencies
 node_modules/
 
+# Markdown docs (not needed in repo)
+*.md
+
 # Build output
 dist/
 dist-ssr/
