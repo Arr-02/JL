@@ -37,3 +37,6 @@ Thumbs.db
 .env
 .env.local
 .env.*.local
+
+# Local deploy script (not for repo)
+deploy.ps1
