@@ -298,7 +298,8 @@ button {
 }
 
 .mobile-menu__panel {
-  width: min(340px, 100%);
+  /* 自适应铺满屏幕宽度（左右仅留 16px 边距），不留空白 */
+  width: 100%;
   background: rgb(12 12 12 / 55%);
   -webkit-backdrop-filter: blur(18px) saturate(1.5);
   backdrop-filter: blur(18px) saturate(1.5);
@@ -320,11 +321,15 @@ button {
 
 .mobile-menu button {
   display: block;
+  /* button 默认收缩包裹内容宽度，必须显式 100% 才能整行可点 */
+  width: 100%;
   text-align: left;
   font-size: 1.15rem;
   font-weight: 600;
   letter-spacing: -0.02em;
-  padding: 12px 0;
+  /* 负 margin 抵消面板左右内边距，点击区横向铺满整个面板 */
+  margin: 0 -22px;
+  padding: 12px 22px;
   color: inherit;
   border-bottom: 1px solid rgb(255 255 255 / 12%);
 }
