@@ -3,6 +3,7 @@ import Reveal from "../components/Reveal";
 import WipeTransition from "../components/WipeTransition";
 import PixelField from "../components/PixelField";
 import ParallaxImage from "../components/ParallaxImage";
+import useRevealed from "../lib/useRevealed";
 
 const EASE: [number, number, number, number] = [0.22, 1, 0.36, 1];
 const TITLE_LINES = ["我专注于", "严谨规范的装配与调试，", "让电路可靠运行。"];
@@ -11,10 +12,13 @@ const TITLE_LINES = ["我专注于", "严谨规范的装配与调试，", "让�
  * About 详情（文档 §一.2 / §三.4）：
  * - 左栏 [ ABOUT ] → 大标题 → [ DIGITAL NATIVE ] → 正文（按行遮罩入场）
  * - 右栏大图滚动视差（-6%→6%，素材上下 bleed 8% 防露边）
- * - 小图独立入场：淡入 + 上移（whileInView once）
+ * - 小图独立入场：淡入 + 上移
+ * 入场判定统一走 useRevealed：对瞬移滚动 / 刷新恢复滚动位置鲁棒
  */
 export default function AboutSection() {
   const reduce = useReducedMotion();
+  const titleReveal = useRevealed<HTMLHeadingElement>(0.4);
+  const smallReveal = useRevealed<HTMLDivElement>(0.6);
 
   return (
     <section className="panel panel--light section-pad">
@@ -26,6 +30,7 @@ export default function AboutSection() {
             <p className="tag-bracket">[ ABOUT ]</p>
           </Reveal>
           <h2
+            ref={titleReveal.ref}
             className="about__title"
             aria-label="我专注于严谨规范的装配与调试，让电路可靠运行。"
           >
@@ -34,8 +39,7 @@ export default function AboutSection() {
                 <motion.span
                   className="hero-line__in"
                   initial={reduce ? { opacity: 0 } : { y: "110%" }}
-                  whileInView={reduce ? { opacity: 1 } : { y: "0%" }}
-                  viewport={{ once: true, amount: 0.6 }}
+                  animate={titleReveal.revealed ? (reduce ? { opacity: 1 } : { y: "0%" }) : undefined}
                   transition={{ duration: 1, delay: i * 0.1, ease: EASE }}
                 >
                   {line}
@@ -70,11 +74,11 @@ export default function AboutSection() {
             />
           </ParallaxImage>
           <motion.div
+            ref={smallReveal.ref}
             className="about__media-small"
             aria-hidden="true"
             initial={reduce ? { opacity: 0 } : { opacity: 0, y: 40 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, amount: 0.4 }}
+            animate={smallReveal.revealed ? { opacity: 1, y: 0 } : undefined}
             transition={{ duration: 0.7, delay: 0.15, ease: EASE }}
           >
             <img src="images/about-small.webp" alt="" loading="lazy" />

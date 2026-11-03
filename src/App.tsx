@@ -4,7 +4,8 @@ import { AnimatePresence } from "motion/react";
 import SiteHeader from "./components/SiteHeader";
 import HomePage from "./pages/HomePage";
 import ProjectPage from "./pages/ProjectPage";
-import { scrollToSection, scrollToTop } from "./lib/scroll";
+import ResumePage from "./pages/ResumePage";
+import { RESUME_AS_HOME, scrollToSection, scrollToTop } from "./lib/scroll";
 
 export default function App() {
   const location = useLocation();
@@ -24,7 +25,12 @@ export default function App() {
       <SiteHeader />
       <AnimatePresence mode="wait">
         <Routes location={location} key={location.pathname}>
-          <Route path="/" element={<HomePage />} />
+          {/* 开关：简历页作为主页；原 HomePage 保留代码，置 false 即切回 */}
+          <Route path="/" element={RESUME_AS_HOME ? <ResumePage /> : <HomePage />} />
+          <Route
+            path="/resume"
+            element={RESUME_AS_HOME ? <Navigate to="/" replace /> : <ResumePage />}
+          />
           <Route path="/work/:slug" element={<ProjectPage />} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>

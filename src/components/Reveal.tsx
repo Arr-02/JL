@@ -1,5 +1,6 @@
 import { motion, useReducedMotion } from "motion/react";
 import type { ReactNode } from "react";
+import useRevealed from "../lib/useRevealed";
 
 const EASE: [number, number, number, number] = [0.22, 1, 0.36, 1];
 
@@ -10,7 +11,7 @@ type RevealProps = {
   amount?: number;
 };
 
-/** 进入视口时淡入上移（尊重 prefers-reduced-motion） */
+/** 进入视口（含被瞬移滚过）时淡入上移（尊重 prefers-reduced-motion） */
 export default function Reveal({
   children,
   delay = 0,
@@ -18,12 +19,13 @@ export default function Reveal({
   amount = 0.2,
 }: RevealProps) {
   const reduce = useReducedMotion();
+  const { ref, revealed } = useRevealed(1 - amount);
   return (
     <motion.div
+      ref={ref}
       className={className}
       initial={reduce ? { opacity: 0 } : { opacity: 0, y: 28 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true, amount }}
+      animate={revealed ? { opacity: 1, y: 0 } : undefined}
       transition={{ duration: 0.7, delay, ease: EASE }}
     >
       {children}

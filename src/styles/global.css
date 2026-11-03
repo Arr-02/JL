@@ -143,13 +143,24 @@ button {
   left: 0;
   right: 0;
   bottom: 100%;
-  height: 100dvh;
+  /* lvh 不随移动端地址栏收展变化：柱高几何稳定、边缘不跳帧；
+     vh 行兜底（旧浏览器无 dvh/lvh 时旧实现柱高会塌成 0） */
+  height: 100vh;
+  height: 100lvh;
   display: flex;
   pointer-events: none;
+  /* 高于区块内容（z≤2）：阶梯边缘真实裁切上一区块标题/sticky 文案，
+     而非依赖文字颜色巧合；低于顶栏(130)/移动菜单(120)；
+     .pixels(6) 仍在其上，保证交界处黑白方块共存（文档 §6.5/§7.1） */
+  z-index: 5;
 }
 
 .wipe__col {
   flex: 1 1 0;
+}
+
+/* 仅过渡进行中，给「实际做 transform 的内层柱体」挂 will-change（用完即撤） */
+.wipe--active .wipe__col > div {
   will-change: transform;
 }
 
@@ -314,11 +325,10 @@ button {
   margin-right: 14px;
 }
 
-/* ---------- Hero（黑底 100dvh） ---------- */
+/* ---------- Hero（黑底 100dvh 整屏首屏） ---------- */
 .hero {
   min-height: 100dvh;
   display: flex;
-  overflow: hidden;
 }
 
 .hero__inner {
@@ -333,44 +343,12 @@ button {
   z-index: 2;
 }
 
-.hero__bullet {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  font-family: var(--font-mono);
-  font-size: 12px;
-  letter-spacing: 0.1em;
-  color: var(--muted);
-}
-
-.hero__bullet::before {
-  content: "";
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  background: var(--white);
-}
-
 .hero__title {
   margin-top: auto;
   font-size: clamp(40px, 6.5vw, 100px);
   font-weight: 600;
   line-height: 1.06;
   letter-spacing: -0.03em;
-}
-
-.hero-line,
-.line-mask {
-  display: block;
-  overflow: hidden;
-  padding-bottom: 0.08em;
-  margin-bottom: -0.08em;
-}
-
-.hero-line__in,
-.line-mask__in {
-  display: block;
-  will-change: transform;
 }
 
 .hero__bottom {
@@ -388,6 +366,66 @@ button {
   color: var(--muted);
 }
 
+.line-mask {
+  display: block;
+  overflow: hidden;
+  padding-bottom: 0.08em;
+  margin-bottom: -0.08em;
+}
+
+.line-mask__in {
+  display: block;
+  will-change: transform;
+}
+
+/* About 大标题按行遮罩入场复用（hero 精简后保留） */
+.hero-line {
+  display: block;
+  overflow: hidden;
+  padding-bottom: 0.08em;
+  margin-bottom: -0.08em;
+}
+
+.hero-line__in {
+  display: block;
+  will-change: transform;
+}
+
+/* 主操作区：醒目简历跳转按钮 + 次级滚动按钮（居底行右侧，纵向排布） */
+.hero__actions {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 16px;
+}
+
+.hero__cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  font-family: var(--font-mono);
+  font-size: clamp(14px, 1.4vw, 17px);
+  letter-spacing: 0.12em;
+  white-space: nowrap;
+  color: var(--white);
+  padding: 20px 40px;
+  border: 1px solid rgb(250 250 250 / 45%);
+  border-radius: 999px;
+  background: rgb(250 250 250 / 6%);
+  transition:
+    background var(--dur-s) ease,
+    color var(--dur-s) ease,
+    border-color var(--dur-s) ease,
+    transform var(--dur-s) ease;
+}
+
+.hero__cta:hover {
+  background: var(--white);
+  border-color: var(--white);
+  color: var(--black);
+  transform: translateY(-2px);
+}
+
 .hero__scroll {
   font-family: var(--font-mono);
   font-size: 12px;
@@ -399,130 +437,6 @@ button {
 
 .hero__scroll:hover {
   color: var(--white);
-}
-
-/* ---------- 玻璃几何体 ---------- */
-.shapes {
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-  overflow: hidden;
-}
-
-.shape {
-  position: absolute;
-  will-change: transform;
-}
-
-/* contact 变体：落位外壳 + 鼠标视差中壳（全尺寸透传层，内层 .shape 自行定位） */
-.shape-fx,
-.shape-drift {
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-}
-
-.shape--ball,
-.shape--small {
-  border-radius: 50%;
-  background: radial-gradient(
-    circle at 32% 28%,
-    rgb(255 255 255 / 95%) 0%,
-    rgb(255 255 255 / 30%) 34%,
-    rgb(255 255 255 / 5%) 62%,
-    rgb(255 255 255 / 22%) 100%
-  );
-}
-
-.shape--cone {
-  clip-path: polygon(50% 0, 100% 100%, 0 100%);
-  background: linear-gradient(
-    165deg,
-    rgb(255 255 255 / 90%) 0%,
-    rgb(255 255 255 / 16%) 52%,
-    rgb(255 255 255 / 42%) 100%
-  );
-}
-
-.shape--pyramid {
-  clip-path: polygon(50% 0, 100% 88%, 50% 100%, 0 88%);
-  background: linear-gradient(
-    205deg,
-    rgb(255 255 255 / 85%) 0%,
-    rgb(255 255 255 / 14%) 55%,
-    rgb(255 255 255 / 36%) 100%
-  );
-}
-
-.shapes--hero .shape--cone {
-  width: 190px;
-  height: 210px;
-  right: 11%;
-  top: 15%;
-  animation: float-c 7s ease-in-out infinite alternate;
-}
-
-.shapes--hero .shape--ball {
-  width: 240px;
-  height: 240px;
-  right: 26%;
-  top: 42%;
-  animation: float-a 9s ease-in-out infinite alternate;
-}
-
-.shapes--hero .shape--pyramid {
-  width: 150px;
-  height: 140px;
-  right: 5%;
-  top: 58%;
-  animation: float-b 10s ease-in-out infinite alternate;
-}
-
-.shapes--hero .shape--small {
-  width: 72px;
-  height: 72px;
-  right: 35%;
-  top: 12%;
-  filter: blur(3px);
-  animation: float-d 6s ease-in-out infinite alternate;
-}
-
-/* contact 变体：几何体沉到右栏速览表背后，低透明度做层深（不抢文字） */
-.shapes--contact {
-  opacity: 0.38;
-}
-
-.shapes--contact .shape--cone {
-  width: 150px;
-  height: 165px;
-  right: 10%;
-  top: 6%;
-  animation: float-c 8s ease-in-out infinite alternate;
-}
-
-.shapes--contact .shape--ball {
-  width: 190px;
-  height: 190px;
-  right: 26%;
-  top: 38%;
-  animation: float-a 10s ease-in-out infinite alternate;
-}
-
-.shapes--contact .shape--pyramid {
-  width: 120px;
-  height: 110px;
-  right: 8%;
-  top: 68%;
-  animation: float-b 9s ease-in-out infinite alternate;
-}
-
-.shapes--contact .shape--small {
-  width: 56px;
-  height: 56px;
-  right: 42%;
-  top: 4%;
-  filter: blur(3px);
-  animation: float-d 7s ease-in-out infinite alternate;
 }
 
 /* ---------- Featured Work（白底，左右交错） ---------- */
@@ -617,6 +531,11 @@ button {
   }
 }
 
+/* 详情功能弃用中：静态卡片不响应悬停缩放 */
+.project-card--static:hover .project-card__media img {
+  transform: none;
+}
+
 /* ---------- About 黑区（sticky 钉住文案 + 像素穿过） ---------- */
 .about-intro {
   height: 300vh; /* 文案钉住约 4 秒滚动区间 */
@@ -652,11 +571,12 @@ button {
   color: var(--muted);
 }
 
-/* 像素方块层：铺满 300vh，z-index 高于文本层（直接遮挡字母，非 blend 反相） */
+/* 像素方块层：铺满 300vh，z-index 高于文本层（直接遮挡字母，非 blend 反相），
+   且高于阶梯转场柱(5)：交界处黑底白方块与白底黑方块共存（文档 §6.5/§7.1） */
 .pixels {
   position: absolute;
   inset: 0;
-  z-index: 2;
+  z-index: 6;
   pointer-events: none;
   overflow: clip; /* 只裁本层边缘飞出的方块，不影响区块内的阶梯转场 */
 }
@@ -1271,6 +1191,257 @@ button {
   min-height: 60vh;
 }
 
+/* ---------- 单页简历 ---------- */
+/* 版心比全站容器收窄，更接近「一页纸」文档感 */
+.resume .container {
+  width: min(1120px, 92vw);
+  padding-top: calc(var(--header-h) + clamp(36px, 7vh, 80px));
+  padding-bottom: clamp(60px, 9vh, 110px);
+}
+
+.resume__head {
+  margin-top: clamp(8px, 2vw, 20px);
+}
+
+.resume__name {
+  font-size: clamp(3rem, 8vw, 5.4rem);
+  font-weight: 600;
+  line-height: 1.04;
+  letter-spacing: -0.03em;
+  margin-top: 16px;
+}
+
+.resume__intent {
+  margin-top: 18px;
+  font-size: 15px;
+  line-height: 1.9;
+  color: var(--muted);
+  max-width: 56ch;
+}
+
+/* 基本信息速览：四格 hairline 横幅（同 pj-meta 语言） */
+.resume__facts {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 24px;
+  border-top: 1px solid var(--line);
+  border-bottom: 1px solid var(--line);
+  padding: 26px 0;
+  margin: clamp(36px, 5vw, 56px) 0 clamp(48px, 7vw, 88px);
+}
+
+.resume__facts span {
+  display: block;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.14em;
+  color: var(--muted);
+  margin-bottom: 8px;
+}
+
+.resume__facts p {
+  font-size: 14.5px;
+  font-weight: 500;
+  line-height: 1.7;
+}
+
+/* 区块间距 */
+.resume__section {
+  margin-bottom: clamp(56px, 8vw, 104px);
+  /* 锚点跳转时避开固定顶栏（原生滚动兜底用；Lenis 路径走 JS offset） */
+  scroll-margin-top: calc(var(--header-h) + 20px);
+}
+
+.resume__section:last-of-type {
+  margin-bottom: 0;
+}
+
+/* 键值行（教育背景 / 专业技能共用） */
+.resume__rows {
+  border-top: 1px solid var(--line);
+  overflow: hidden;
+}
+
+.resume__rows > li {
+  display: grid;
+  grid-template-columns: 150px 1fr;
+  gap: clamp(14px, 3vw, 40px);
+  padding: 20px 12px;
+  border-bottom: 1px solid var(--line);
+  transition: background var(--dur-s) ease;
+}
+
+.resume__rows > li:hover {
+  background: #f0f0ee;
+}
+
+.resume__rows strong {
+  font-size: 15px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+
+.resume__rows span {
+  font-size: 14px;
+  line-height: 1.8;
+  color: rgb(0 0 0 / 62%);
+}
+
+/* 获奖行：年份 + 奖项（跳转详情）+ 级别 chip */
+.resume__awards {
+  border-top: 1px solid var(--line);
+  overflow: hidden;
+}
+
+.resume__awards > li {
+  border-bottom: 1px solid var(--line);
+}
+
+.resume__award {
+  display: grid;
+  grid-template-columns: 56px 1fr auto;
+  gap: clamp(14px, 2.5vw, 32px);
+  align-items: center;
+  padding: 22px 12px;
+  transition: background var(--dur-s) ease;
+}
+
+.resume__award:hover {
+  background: #f0f0ee;
+}
+
+.resume__award-year {
+  font-family: var(--font-mono);
+  font-size: 13px;
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
+}
+
+.resume__award-main strong {
+  font-size: clamp(1.05rem, 1.7vw, 1.3rem);
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+
+.resume__award-main small {
+  display: block;
+  margin-top: 4px;
+  font-size: 12.5px;
+  color: var(--muted);
+  line-height: 1.6;
+}
+
+/* 项目实践 */
+.resume__projects {
+  list-style: none;
+  border-top: 1px solid var(--line);
+}
+
+.resume__project {
+  padding: 26px 12px;
+  border-bottom: 1px solid var(--line);
+}
+
+.resume__project-title {
+  font-size: clamp(1.05rem, 1.7vw, 1.3rem);
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+
+.resume__project-meta {
+  margin-top: 6px;
+  font-family: var(--font-mono);
+  font-size: 12.5px;
+  color: var(--muted);
+}
+
+.resume__project-points {
+  margin-top: 14px;
+  list-style: none;
+  display: grid;
+  gap: 8px;
+}
+
+.resume__project-points li {
+  position: relative;
+  padding-left: 18px;
+  font-size: 14.5px;
+  line-height: 1.8;
+  color: rgb(0 0 0 / 62%);
+}
+
+.resume__project-points li::before {
+  content: "—";
+  position: absolute;
+  left: 0;
+  color: var(--muted);
+}
+
+/* 自我评价 */
+.resume__profile p {
+  font-size: 15px;
+  line-height: 1.95;
+  color: rgb(0 0 0 / 62%);
+  margin-bottom: 1.3em;
+}
+
+.resume__profile p:last-child {
+  margin-bottom: 0;
+}
+
+.resume__profile p strong {
+  color: var(--ink);
+  font-weight: 600;
+}
+
+/* 页脚 */
+.resume__footer {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px 28px;
+  justify-content: space-between;
+  border-top: 1px solid var(--line);
+  margin-top: clamp(56px, 8vw, 96px);
+  padding-top: 22px;
+  font-size: 13px;
+  color: var(--muted);
+}
+
+.resume__footer a {
+  transition: color var(--dur-s) ease;
+}
+
+.resume__footer a:hover {
+  color: var(--ink);
+}
+
+/* ---------- 简历响应式 ---------- */
+@media (max-width: 768px) {
+  .resume__facts {
+    grid-template-columns: repeat(2, 1fr);
+    row-gap: 20px;
+  }
+
+  .resume__award {
+    grid-template-columns: 1fr auto;
+    align-items: start;
+  }
+
+  .resume__award-year {
+    grid-column: 1 / -1;
+  }
+
+  .resume__rows > li {
+    grid-template-columns: 1fr;
+    gap: 6px;
+  }
+
+  .resume__footer {
+    flex-direction: column;
+    gap: 8px;
+  }
+}
+
 /* ---------- 响应式 ---------- */
 @media (max-width: 1024px) {
   .pj-meta {
@@ -1321,6 +1492,11 @@ button {
   .hero__bottom {
     flex-direction: column;
     align-items: flex-start;
+  }
+
+  .hero__actions {
+    align-items: flex-start;
+    gap: 20px;
   }
 
   /* 移动端：双栏退化单列，巨字一行、邮箱行堆叠；履历速览移至联系我上方 */
@@ -1376,17 +1552,6 @@ button {
     grid-template-columns: 1fr;
     gap: 6px;
   }
-
-  /* 玻璃几何体缩小 */
-  .shapes--hero .shape--cone { width: 110px; height: 122px; right: 6%; top: 12%; }
-  .shapes--hero .shape--ball { width: 140px; height: 140px; right: 30%; top: 30%; }
-  .shapes--hero .shape--pyramid { width: 88px; height: 82px; right: 2%; top: 52%; }
-  .shapes--hero .shape--small { width: 44px; height: 44px; right: 52%; top: 8%; }
-
-  .shapes--contact .shape--cone { width: 80px; height: 90px; }
-  .shapes--contact .shape--ball { width: 100px; height: 100px; }
-  .shapes--contact .shape--pyramid { width: 66px; height: 60px; }
-  .shapes--contact .shape--small { width: 34px; height: 34px; }
 }
 
 /* 移动端技能格退化为单列（文档 §7.4） */

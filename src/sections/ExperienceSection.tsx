@@ -1,5 +1,6 @@
 import { motion, useReducedMotion } from "motion/react";
 import Reveal from "../components/Reveal";
+import useRevealed from "../lib/useRevealed";
 
 const EASE: [number, number, number, number] = [0.22, 1, 0.36, 1];
 
@@ -20,13 +21,38 @@ const CERTS: { role: string; company: string; years: string }[] = [
   { role: "TEMI 电子元件拆焊 · 实用级", company: "台湾嵌入式暨单晶片系统发展协会", years: "2024·05" },
 ];
 
+/** 单行证书：由整表统一触发，行内不绑定滚动，按 index 顺序 stagger 0.2s */
+function CertRow({
+  cert,
+  index,
+  revealed,
+}: {
+  cert: (typeof CERTS)[number];
+  index: number;
+  revealed: boolean;
+}) {
+  const reduce = useReducedMotion();
+  return (
+    <motion.li
+      className="exp-row"
+      initial={reduce ? { opacity: 0 } : { opacity: 0, y: 32, color: "#8a8a8a" }}
+      animate={revealed ? { opacity: 1, y: 0, color: "#000000" } : undefined}
+      transition={{ duration: 0.7, delay: index * 0.2, ease: EASE }}
+    >
+      <h3 className="exp-row__role">{cert.role}</h3>
+      <span className="exp-row__company">{cert.company}</span>
+      <span className="exp-row__years">{cert.years}</span>
+    </motion.li>
+  );
+}
+
 /**
  * 职业认证：左栏教育背景 + 右侧证书表（文档 §一.5 / §三.3 同款 stagger 动画）
  * - 表头静止，数据行从底部裁剪边滑入（容器 overflow hidden）
- * - 每行 y:32 + opacity:0，stagger 0.2s，0.7s 播完（触发式 once）
+ * - 整表进入视口时一次性触发，各行不绑定滚动，按顺序 stagger 0.2s 逐行显示
  */
 export default function ExperienceSection() {
-  const reduce = useReducedMotion();
+  const { ref, revealed } = useRevealed<HTMLUListElement>(0.6);
   return (
     <section id="experience" className="panel panel--light section-pad">
       <div className="container split">
@@ -39,29 +65,14 @@ export default function ExperienceSection() {
             职业技能等级证书与 TEMI 系列认证。
           </p>
         </Reveal>
-        <ul className="exp-table">
+        <ul className="exp-table" ref={ref}>
           <li className="exp-row exp-row--head" aria-hidden="true">
             <span>CERTIFICATE</span>
             <span>ISSUER</span>
             <span>YEAR</span>
           </li>
           {CERTS.map((e, i) => (
-            <motion.li
-              key={e.role}
-              className="exp-row"
-              initial={
-                reduce
-                  ? { opacity: 0 }
-                  : { opacity: 0, y: 32, color: "#8a8a8a" }
-              }
-              whileInView={{ opacity: 1, y: 0, color: "#000000" }}
-              viewport={{ once: true, amount: 0.4 }}
-              transition={{ duration: 0.7, delay: i * 0.2, ease: EASE }}
-            >
-              <h3 className="exp-row__role">{e.role}</h3>
-              <span className="exp-row__company">{e.company}</span>
-              <span className="exp-row__years">{e.years}</span>
-            </motion.li>
+            <CertRow key={e.role} cert={e} index={i} revealed={revealed} />
           ))}
         </ul>
       </div>

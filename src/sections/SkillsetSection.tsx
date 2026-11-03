@@ -1,5 +1,6 @@
 import { motion, useReducedMotion } from "motion/react";
 import Reveal from "../components/Reveal";
+import useRevealed from "../lib/useRevealed";
 
 const EASE: [number, number, number, number] = [0.22, 1, 0.36, 1];
 
@@ -11,26 +12,25 @@ const SKILLS = [
 ];
 
 /**
- * 每格独立 inview 触发（逐张显影，文档 §一.7）：
+ * 每格独立显影触发（逐张显影，文档 §一.7；useRevealed 对瞬移滚动鲁棒）：
  * 卡体 + 编号先到（y:24，0.6s），技能名延迟 0.12s 第二拍（同样 y:24）
  */
 function SkillCard({ skill }: { skill: (typeof SKILLS)[number] }) {
   const reduce = useReducedMotion();
-  const vp = { once: true, margin: "-10% 0px -10% 0px" };
+  const { ref, revealed } = useRevealed<HTMLDivElement>(0.8);
   return (
     <motion.div
+      ref={ref}
       className="skill-card"
       initial={reduce ? { opacity: 0 } : { opacity: 0, y: 24 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={vp}
+      animate={revealed ? { opacity: 1, y: 0 } : undefined}
       transition={{ duration: 0.6, ease: EASE }}
     >
       <span className="skill-card__num">{skill.num}</span>
       <motion.h3
         className="skill-card__name"
         initial={reduce ? { opacity: 0 } : { opacity: 0, y: 24 }}
-        whileInView={{ opacity: 1, y: 0 }}
-        viewport={vp}
+        animate={revealed ? { opacity: 1, y: 0 } : undefined}
         transition={{ duration: 0.6, delay: 0.12, ease: EASE }}
       >
         {skill.name}

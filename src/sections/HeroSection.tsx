@@ -1,5 +1,5 @@
 import { motion, useReducedMotion } from "motion/react";
-import GlassShapes from "../components/GlassShapes";
+import { Link } from "react-router-dom";
 import { scrollToSection } from "../lib/scroll";
 
 const EASE: [number, number, number, number] = [0.16, 1, 0.3, 1];
@@ -10,18 +10,11 @@ export default function HeroSection() {
 
   return (
     <section className="hero panel panel--dark">
-      <GlassShapes variant="hero" />
       <div className="container hero__inner">
-        <motion.p
-          className="hero__bullet"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 0.8, delay: 0.1 }}
+        <h1
+          className="hero__title"
+          aria-label="我是张家福，一名专注装配调试与单片机应用的技能人才。"
         >
-          电子技术专业 · 海宁技师学院
-        </motion.p>
-
-        <h1 className="hero__title" aria-label="我是张家福，一名专注装配调试与单片机应用的技能人才。">
           {LINES.map((line, i) => (
             <span className="hero-line" key={line} aria-hidden="true">
               <motion.span
@@ -47,9 +40,14 @@ export default function HeroSection() {
             持电子设备装接工高级工（三级）证书，坚持以赛促学——
             从海宁市一等奖到浙江省二等奖，让每一次焊接与调试都更近一步。
           </p>
-          <button className="hero__scroll" onClick={() => scrollToSection("work")}>
-            [ 查看竞赛成果 ] ↓
-          </button>
+          <div className="hero__actions">
+            <Link to="/resume" className="hero__cta">
+              [ 快速浏览 ] →
+            </Link>
+            <button className="hero__scroll" onClick={() => scrollToSection("work")}>
+              [ 查看竞赛成果 ] ↓
+            </button>
+          </div>
         </motion.div>
       </div>
     </section>
