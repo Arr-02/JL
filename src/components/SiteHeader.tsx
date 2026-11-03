@@ -86,6 +86,8 @@ export default function SiteHeader() {
 
   const goSection = (id: string) => {
     setMenuOpen(false);
+    // 菜单打开时 Lenis 处于 stop 状态，scrollTo 会被其内部直接忽略——先恢复再滚动
+    getLenis()?.start();
     if (!isHome) {
       navigate("/", { state: { scrollTo: id } });
     } else {
@@ -151,15 +153,27 @@ export default function SiteHeader() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            transition={{ duration: 0.3, ease: "easeOut" }}
+            transition={{ duration: 0.25, ease: "easeOut" }}
+            onClick={(e) => {
+              // 点击面板外空白处关闭
+              if (e.target === e.currentTarget) setMenuOpen(false);
+            }}
           >
-            <small>导航 MENU</small>
-            {navItems.map((item, i) => (
-              <button key={item.id} onClick={() => goSection(item.id)}>
-                <sup>0{i + 1}</sup>
-                {item.label}
-              </button>
-            ))}
+            <motion.div
+              className="mobile-menu__panel"
+              initial={{ y: -10, opacity: 0 }}
+              animate={{ y: 0, opacity: 1 }}
+              exit={{ y: -10, opacity: 0 }}
+              transition={{ duration: 0.25, ease: "easeOut" }}
+            >
+              <small>导航 MENU</small>
+              {navItems.map((item, i) => (
+                <button key={item.id} onClick={() => goSection(item.id)}>
+                  <sup>0{i + 1}</sup>
+                  {item.label}
+                </button>
+              ))}
+            </motion.div>
           </motion.div>
         )}
       </AnimatePresence>
